@@ -12,7 +12,7 @@ class CustomDataset(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return len(self.item_filenames)
+        return len(self.item_filenames)-3
 
     def _process_img(self, idx):
         img_name = os.path.join(self.image_dir, self.item_filenames[idx])
@@ -33,4 +33,5 @@ class CustomDataset(Dataset):
         anchor = self._process_img(idx)
         positive = self._process_img(idx + 1)
         negative = self._process_img(idx + 2)
-        return torch.stack([anchor, positive, negative])
+        triplet = torch.stack([anchor, positive, negative], dim=0)
+        return triplet
