@@ -40,16 +40,17 @@ export default async function ProductPage({
 }) {
   const { id } = params;
 
-  const sanitizedId = id.slice(5);
+  const sanitizedIdForApi = id.slice(5).replace("_", "-");
   const productImagePath = await getProductImage(id);
 
-  const outfitImages = await getOutfitImages([
-    "53060518-02",
-    "53040593-08",
-    "53060830-OR",
-    "51070587-05",
-    "53030757-02",
-  ]);
+  const apiResponse = await fetch(
+    `http://localhost:8000/product/${sanitizedIdForApi}`
+  );
+  const relatedProducts = await apiResponse.json();
+
+  const outfitImages = await getOutfitImages(
+    relatedProducts["related_products"]
+  );
 
   const getImageId = (imagePath: string) => {
     return imagePath.split("/").shift()?.split(".jpg")[0];
