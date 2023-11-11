@@ -5,9 +5,8 @@ from torch.utils.data import Dataset
 
 
 class CustomDataset(Dataset):
-    def __init__(self, image_dir, dataset_dir, item_filenames, transform=None):
+    def __init__(self, image_dir, item_filenames, transform=None):
         self.image_dir = image_dir
-        self.dataset_dir = dataset_dir
         self.item_filenames = item_filenames
         self.transform = transform
 
