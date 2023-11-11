@@ -14,8 +14,7 @@ class CustomDataset(Dataset):
     def __len__(self):
         return len(self.item_filenames)
 
-    def __getitem__(self, idx):
-        import os
+    def _process_img(self, idx):
         img_name = os.path.join(self.image_dir, self.item_filenames[idx])
 
         image = cv2.imread(img_name)
@@ -28,3 +27,12 @@ class CustomDataset(Dataset):
             image = torch.from_numpy(image).float()
 
         return image
+
+    def __getitem__(self, idx):
+        # TODO replace this triplet creation logic by something that makes sense
+        triplet = {
+            "anchor": self._process_img(idx),
+            "positive": self._process_img(idx + 1),
+            "negative": self._process_img(idx + 2),
+        }
+        return triplet
