@@ -1,0 +1,7 @@
+pytorch-lightning
+matplotlib
+numpy
+opencv-python
+albumentations
+torchvision
+torchinfo
