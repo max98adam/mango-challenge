@@ -36,9 +36,9 @@ def triplets_to_img_filenames(product_data_path: str, triplets):
     triplet_filenames = []
     for triplet in triplets:
         triplet_filenames.append({
-            "positive": product_data[product_data['cod_modelo_color'] == triplet[0]]['des_filename'].iloc[0].split('/')[
+            "anchor": product_data[product_data['cod_modelo_color'] == triplet[0]]['des_filename'].iloc[0].split('/')[
                 -1],
-            "anchor": product_data[product_data['cod_modelo_color'] == triplet[1]]['des_filename'].iloc[0].split('/')[
+            "positive": product_data[product_data['cod_modelo_color'] == triplet[1]]['des_filename'].iloc[0].split('/')[
                 -1],
             "negative": product_data[product_data['cod_modelo_color'] == triplet[2]]['des_filename'].iloc[0].split('/')[
                 -1]
