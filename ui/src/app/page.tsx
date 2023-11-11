@@ -35,7 +35,7 @@ export default async function Home() {
         <h2 className="text-2xl">
           Select a product for to create a matching outfit for
         </h2>
-        <ImageGrid images={productImages} />
+        <ImageGrid images={productImages} showSuffle={true} />
       </div>
     </main>
   );
