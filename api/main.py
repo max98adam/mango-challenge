@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Union, List, Dict
 import pandas as pd
 
 from fastapi import FastAPI
@@ -11,7 +11,12 @@ def find_outfit_id( product_id):
    return outfit_data.loc[outfit_data['cod_modelo_color'] == product_id, 'cod_outfit'].values
 
 def find_outfit_product_ids(product_id): 
-    outfit_id = find_outfit_id(product_id)[0]
+    outfit_ids = find_outfit_id(product_id)
+
+    if(len(outfit_ids) == 0):
+        return []
+    
+    outfit_id = outfit_ids[0]
     return outfit_data.loc[outfit_data['cod_outfit'] == outfit_id, 'cod_modelo_color'].values
 
 
@@ -20,8 +25,8 @@ def read_root():
     return {"Hello": "Mango Fashion Challenge"}
 
 
-@app.get("/product/{product_id}", response_model=List[str])
+@app.get("/product/{product_id}", response_model=Dict[str, List[str]])
 async def read_item(product_id: str):
     product_ids = find_outfit_product_ids(product_id)
 
-    return product_ids
+    return { "related_products" : product_ids }
