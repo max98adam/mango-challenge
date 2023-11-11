@@ -30,9 +30,7 @@ class CustomDataset(Dataset):
 
     def __getitem__(self, idx):
         # TODO replace this triplet creation logic by something that makes sense
-        triplet = {
-            "anchor": self._process_img(idx),
-            "positive": self._process_img(idx + 1),
-            "negative": self._process_img(idx + 2),
-        }
-        return triplet
+        anchor = self._process_img(idx)
+        positive = self._process_img(idx + 1)
+        negative = self._process_img(idx + 2)
+        return torch.stack([anchor, positive, negative])
