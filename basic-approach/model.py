@@ -17,15 +17,13 @@ class MyLightningModel(pl.LightningModule):
         self.loss_fn = nn.TripletMarginWithDistanceLoss(distance_function=nn.PairwiseDistance())
 
         # Usd for printing layer shapes in model summary
-        self.example_input_array = torch.Tensor(self.hparams["batch_size"], 3, hparams["img_height"],
+        self.example_input_array = torch.Tensor(self.hparams["batch_size"], 3, 3, hparams["img_height"],
                                                 hparams["img_width"])
 
     def forward(self, x):
         # x shape: (batch, triplet_item, channel, x, y)
-        print(f"x: {x.shape}")
 
         anchor_batch = x[:, 0]
-        print(f"anchor_batch: {anchor_batch.shape}")
         anchor_logits = self.pretrained_model(anchor_batch)
         anchor_logits = self.after_pretrained(anchor_logits)
 
@@ -57,8 +55,7 @@ class MyLightningModel(pl.LightningModule):
         tensorboard.add_image(f'{stage}_{name}', tb_image, self.current_epoch + 1)
 
     def evaluate(self, batch, stage=None):
-        x = batch
-        latent_space = self.forward(x)
+        latent_space = self.forward(batch)
         loss = self.loss_fn(latent_space["anchor"], latent_space["positive"], latent_space["negative"])
 
         # Compute metrics
@@ -78,7 +75,7 @@ class MyLightningModel(pl.LightningModule):
         return metrics["loss"]
 
     def predict_step(self, batch, batch_idx):
-        x, y = batch
+        x = batch
         return self.forward(x)
 
     def configure_optimizers(self):
