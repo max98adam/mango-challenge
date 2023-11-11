@@ -6,3 +6,4 @@ albumentations
 torchvision
 torchinfo
 tensorboard
+pandas

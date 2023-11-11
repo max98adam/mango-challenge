@@ -24,13 +24,13 @@ def generate_triplets(outfit_ds_path: str):
 
     return triplets
 
-# anchor1, pos1, negative1, anchor2, pos2, negative2, ...
-def triplets_to_img_paths(product_data_path: str, triplets):
+def triplets_to_img_filenames(product_data_path: str, triplets):
     product_data = pd.read_csv(product_data_path)
-    image_paths = []
+    triplet_filenames = []
     for triplet in triplets:
-        for i in range(3):
-            image_paths.append(product_data[product_data['cod_modelo_color'] == triplet[i]]['des_filename'].iloc[0])
-
-    image_paths = [p.split('/')[-1] for p in image_paths]
-    return image_paths
+        triplet_filenames.append({
+            "positive": product_data[product_data['cod_modelo_color'] == triplet[0]]['des_filename'].iloc[0].split('/')[-1],
+            "anchor": product_data[product_data['cod_modelo_color'] == triplet[1]]['des_filename'].iloc[0].split('/')[-1],
+            "negative": product_data[product_data['cod_modelo_color'] == triplet[2]]['des_filename'].iloc[0].split('/')[-1]
+        })
+    return triplet_filenames

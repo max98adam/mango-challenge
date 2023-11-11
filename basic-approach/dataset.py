@@ -5,16 +5,16 @@ from torch.utils.data import Dataset
 
 
 class CustomDataset(Dataset):
-    def __init__(self, image_dir, item_filenames, transform=None):
+    def __init__(self, image_dir, triplet_filenames, transform=None):
         self.image_dir = image_dir
-        self.item_filenames = item_filenames
+        self.triplet_filenames = triplet_filenames
         self.transform = transform
 
     def __len__(self):
-        return len(self.item_filenames)-3
+        return len(self.triplet_filenames)
 
-    def _process_img(self, idx):
-        img_name = os.path.join(self.image_dir, self.item_filenames[idx])
+    def _process_img(self, image_path):
+        img_name = os.path.join(self.image_dir, image_path)
 
         image = cv2.imread(img_name)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -28,9 +28,10 @@ class CustomDataset(Dataset):
         return image
 
     def __getitem__(self, idx):
-        # TODO replace this triplet creation logic by something that makes sense
-        anchor = self._process_img(idx)
-        positive = self._process_img(idx + 1)
-        negative = self._process_img(idx + 2)
+        triplet = self.triplet_filenames[idx]
+
+        anchor = self._process_img(triplet["anchor"])
+        positive = self._process_img(triplet["positive"])
+        negative = self._process_img(triplet["negative"])
         triplet = torch.stack([anchor, positive, negative], dim=0)
         return triplet
