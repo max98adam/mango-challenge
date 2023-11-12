@@ -1,7 +1,8 @@
 import torch
 import pytorch_lightning as pl
 from torch import nn
-from torchvision.models import squeezenet1_1, SqueezeNet1_1_Weights
+#from torchvision.models import squeezenet1_1, SqueezeNet1_1_Weights
+from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights
 
 
 class MyLightningModel(pl.LightningModule):
@@ -9,7 +10,7 @@ class MyLightningModel(pl.LightningModule):
         super(MyLightningModel, self).__init__()
         self.save_hyperparameters(hparams)  # Logger will log them
 
-        self.pretrained_model = squeezenet1_1(weights=SqueezeNet1_1_Weights.DEFAULT)
+        self.pretrained_model = mobilenet_v3_small(weights=MobileNet_V3_Small_Weights.DEFAULT)
         self.after_pretrained = nn.Sequential(
             nn.LazyLinear(out_features=hparams["latent_space_size"])
         )
