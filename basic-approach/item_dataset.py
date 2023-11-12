@@ -1,12 +1,14 @@
 import os
 import cv2
+import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
 
 class ItemDataset(Dataset):
-    def __init__(self, image_dir, transform=None, DEBUG_USE_SMALL_DATASET_FRACTION=False):
+    def __init__(self, image_dir, product_csv_file, transform=None, DEBUG_USE_SMALL_DATASET_FRACTION=False):
         self.image_dir = image_dir
+        self.product_metadata = pd.read_csv(product_csv_file)
         self.item_filenames = sorted(os.listdir(image_dir))
         self.transform = transform
 
@@ -31,7 +33,11 @@ class ItemDataset(Dataset):
         return image
 
     def __getitem__(self, idx):
-        return self._process_img(self.item_filenames[idx])
+        image_filename = self.item_filenames[idx]
+        image = self._process_img(image_filename)
+        metadata = self.product_metadata[self.product_metadata.des_filename == image_filename]
+        print(metadata)
+        return image, metadata
 
     def get_filename(self, idx):
         return self.item_filenames[idx]

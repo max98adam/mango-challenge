@@ -13,6 +13,9 @@ class MyLightningModel(pl.LightningModule):
         self.after_pretrained = nn.Sequential(
             nn.LazyLinear(out_features=hparams["latent_space_size"])
         )
+        self.after_concat_with_metadata = nn.Sequential(
+            nn.LazyLinear(out_features=hparams["latent_space_size"])
+        )
 
         self.loss_fn = nn.TripletMarginWithDistanceLoss(distance_function=nn.PairwiseDistance())
 
@@ -20,9 +23,14 @@ class MyLightningModel(pl.LightningModule):
         self.example_input_array = torch.Tensor(self.hparams["batch_size"], 3, hparams["img_height"],
                                                 hparams["img_width"])
 
-    def forward(self, x):
-        pretrained_out = self.pretrained_model(x)
-        latent_space = self.after_pretrained(pretrained_out)
+    def forward(self, img, metadata):
+        pretrained_out = self.pretrained_model(img)
+        reduced_pretrained_out = self.after_pretrained(pretrained_out)
+
+        print(metadata)
+
+        concat = torch.cat(reduced_pretrained_out, metadata_encoded)
+        latent_space = self.after_concat_with_metadata(concat)
         return latent_space
 
     def log_metrics(self, metrics, stage, epoch):
@@ -37,17 +45,18 @@ class MyLightningModel(pl.LightningModule):
         tensorboard = self.logger.experiment
         tensorboard.add_image(f'{stage}_{name}', tb_image, self.current_epoch + 1)
 
-    def evaluate(self, batch, stage=None):
-        # batch shape: (batch, triplet_item, channel, x, y)
+    def evaluate(self, x, stage=None):
+        triplet_img, triplet_metadata = x
+        # triplet_img shape: (batch, triplet_item, channel, x, y)
 
-        anchor_batch = batch[:, 0]
-        anchor_logits = self.forward(anchor_batch)
+        anchor_batch = triplet_img[:, 0]
+        anchor_logits = self.forward(anchor_batch, triplet_metadata[0])
 
-        positive_batch = batch[:, 1]
-        positive_logits = self.forward(positive_batch)
+        positive_batch = triplet_img[:, 1]
+        positive_logits = self.forward(positive_batch, triplet_metadata[1])
 
-        negative_batch = batch[:, 2]
-        negative_logits = self.forward(negative_batch)
+        negative_batch = triplet_img[:, 2]
+        negative_logits = self.forward(negative_batch, triplet_metadata[2])
 
         latent_space = {
             "anchor": anchor_logits,
@@ -69,8 +78,8 @@ class MyLightningModel(pl.LightningModule):
         return metrics
 
     # Training
-    def training_step(self, batch, batch_idx):
-        metrics = self.evaluate(batch, "train")
+    def training_step(self, x, batch_idx):
+        metrics = self.evaluate(x, "train")
         return metrics["loss"]
 
     def predict_step(self, batch, batch_idx):
